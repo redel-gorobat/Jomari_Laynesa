@@ -1,0 +1,746 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Coffee, Briefcase, GraduationCap, Award, Mail, Phone, MapPin, ChevronDown, Menu, X, Send, Download } from 'lucide-react';
+
+export default function Portfolio() {
+  const [activeSection, setActiveSection] = useState('home');
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [visibleSections, setVisibleSections] = useState(new Set());
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [formStatus, setFormStatus] = useState('');
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (scrollTop / docHeight) * 100;
+      setScrollProgress(progress);
+
+      // Update active section based on scroll position
+      const sections = ['home', 'about', 'experience', 'education', 'skills', 'contact'];
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= 150 && rect.bottom >= 150) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisibleSections((prev) => new Set([...prev, entry.target.id]));
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const sections = document.querySelectorAll('section[id]');
+    sections.forEach((section) => observer.observe(section));
+
+    return () => sections.forEach((section) => observer.unobserve(section));
+  }, []);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Create mailto link with form data
+    const mailtoLink = `mailto:laynesajomari@gmail.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(
+      `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
+    )}`;
+    window.location.href = mailtoLink;
+    setFormStatus('Opening your email client...');
+    setTimeout(() => {
+      setFormStatus('');
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    }, 3000);
+  };
+
+  const scrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+      setIsMenuOpen(false);
+    }
+  };
+
+  const experiences = [
+    {
+      period: "September 2025 - December 2025",
+      title: "Barista/Bartender",
+      company: "Duck and Buvette",
+      location: "Shangri-La Plaza, Mandaluyong City",
+      description: "Knowledgeable in coffee and other beverages. Fast, accurate and friendly while making and serving the order of the guest."
+    },
+    {
+      period: "August 2023 – August 2025",
+      title: "Service and Kitchen Crew",
+      company: "McDonald's",
+      location: "Pili, Camarines Sur",
+      description: "Worked within a variety of kitchen stations, including food prep, cooking, and dishwashing."
+    },
+    {
+      period: "April 2025 – June 2025",
+      title: "Food and Beverage Service (Internship)",
+      company: "Hilton Manila – Kusina Sea Kitchen Outlet",
+      location: "Manila, Philippines",
+      description: "Supported colleagues during busy periods to ensure timely service, demonstrating strong teamwork and communication skills."
+    }
+  ];
+
+  const skills = [
+    "Hospitality and Customer Service",
+    "Multidisciplinary Teamwork",
+    "Basic Latte Art",
+    "Health and Safety Regulations"
+  ];
+
+  const training = [
+    "Intensive Training/Workshop in Barista 101 - 103",
+    "Outstanding Intern for the month of May and June 2025",
+    "Cake Decoration Workshop, Camarines Sur",
+    "Occupational Safety and Health, McDonald's Pili",
+    "Service and Kitchen Workshop, McDonald's Pili"
+  ];
+
+  return (
+    <div className="min-h-screen bg-black text-stone-100 font-sans">
+      {/* Progress Bar */}
+      <div 
+        className="fixed top-0 left-0 h-0.5 bg-gradient-to-r from-amber-800 via-yellow-800 to-amber-900 z-50 transition-all duration-300"
+        style={{ width: `${scrollProgress}%` }}
+      />
+
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 bg-black/95 backdrop-blur-lg border-b border-stone-800 z-40 transition-all duration-300">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <button 
+              onClick={() => scrollToSection('home')}
+              className="text-2xl font-bold text-transparent bg-gradient-to-r from-amber-700 via-yellow-800 to-amber-900 bg-clip-text hover:from-amber-600 hover:via-yellow-700 hover:to-amber-800 transition-all duration-300 tracking-wider"
+              style={{ fontFamily: "'Cormorant Garamond', serif" }}
+            >
+              JOMARI LAYNESA
+            </button>
+            
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center space-x-8">
+              {['Home', 'About', 'Experience', 'Education', 'Skills', 'Contact'].map((item) => (
+                <button
+                  key={item}
+                  onClick={() => scrollToSection(item.toLowerCase())}
+                  className={`text-sm font-medium tracking-wide transition-all duration-300 hover:text-amber-700 relative group uppercase ${
+                    activeSection === item.toLowerCase() ? 'text-amber-700' : 'text-stone-400'
+                  }`}
+                >
+                  {item}
+                  <span className={`absolute -bottom-1 left-0 w-0 h-px bg-amber-700 transition-all duration-300 group-hover:w-full ${
+                    activeSection === item.toLowerCase() ? 'w-full' : ''
+                  }`} />
+                </button>
+              ))}
+              <a
+                href="/Jomari_Laynesa_Resume.pdf"
+                download
+                className="px-6 py-2 bg-gradient-to-r from-amber-800 to-yellow-900 text-stone-100 text-xs font-light tracking-widest uppercase hover:from-amber-700 hover:to-yellow-800 transition-all duration-300 flex items-center group"
+              >
+                <Download size={14} className="mr-2 group-hover:translate-y-0.5 transition-transform duration-300" />
+                Resume
+              </a>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden p-2 text-stone-100 hover:text-amber-700 transition-colors"
+            >
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        <div 
+          className={`md:hidden overflow-hidden transition-all duration-300 ${
+            isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <div className="px-4 pt-2 pb-4 space-y-2 bg-black border-t border-stone-800">
+            {['Home', 'About', 'Experience', 'Education', 'Skills', 'Contact'].map((item) => (
+              <button
+                key={item}
+                onClick={() => scrollToSection(item.toLowerCase())}
+                className={`block w-full text-left px-4 py-2 rounded-lg transition-all duration-300 uppercase tracking-wide ${
+                  activeSection === item.toLowerCase()
+                    ? 'bg-stone-900 text-amber-700'
+                    : 'text-stone-400 hover:bg-stone-900/50'
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+            <a
+              href="/Jomari_Laynesa_Resume.pdf"
+              download
+              className="block w-full text-left px-4 py-2 bg-gradient-to-r from-amber-800 to-yellow-900 text-stone-100 uppercase tracking-wide hover:from-amber-700 hover:to-yellow-800 transition-all duration-300 flex items-center"
+            >
+              <Download size={16} className="mr-2" />
+              Download Resume
+            </a>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section 
+        id="home" 
+        className="min-h-screen flex items-center justify-center relative overflow-hidden pt-16"
+      >
+        {/* Subtle Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)',
+          }} />
+        </div>
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <div className="animate-fadeIn">
+            <div className="mb-6 animate-slideDown" style={{ animationDelay: '0.1s' }}>
+              <div className="w-24 h-px bg-gradient-to-r from-transparent via-amber-800 to-transparent mx-auto mb-8" />
+            </div>
+            <h1 
+              className="text-5xl sm:text-6xl lg:text-7xl font-light mb-6 leading-tight animate-slideDown tracking-wide bg-gradient-to-r from-stone-100 via-amber-100 to-stone-100 bg-clip-text text-transparent"
+              style={{ fontFamily: "'Cormorant Garamond', serif", animationDelay: '0.2s' }}
+            >
+              JOMARI M. LAYNESA
+            </h1>
+            <p 
+              className="text-xl sm:text-2xl text-amber-700 mb-4 animate-slideDown tracking-widest uppercase font-light"
+              style={{ animationDelay: '0.4s', letterSpacing: '0.3em' }}
+            >
+              Hospitality Professional
+            </p>
+            <div className="w-16 h-px bg-gradient-to-r from-transparent via-amber-800 to-transparent mx-auto mb-8 animate-slideDown" style={{ animationDelay: '0.5s' }} />
+            <p 
+              className="text-base text-stone-400 mb-12 max-w-2xl mx-auto animate-slideDown font-light tracking-wide"
+              style={{ animationDelay: '0.6s' }}
+            >
+              Barista • Food Service Specialist • Customer Experience Expert
+            </p>
+            <div 
+              className="flex flex-wrap justify-center gap-4 animate-slideUp"
+              style={{ animationDelay: '0.8s' }}
+            >
+              <button
+                onClick={() => scrollToSection('contact')}
+                className="px-10 py-4 bg-gradient-to-r from-amber-800 to-yellow-900 text-stone-100 font-light tracking-widest uppercase text-sm hover:from-amber-700 hover:to-yellow-800 transition-all duration-500 hover:tracking-wider shadow-lg hover:shadow-amber-900/50"
+              >
+                Contact
+              </button>
+              <button
+                onClick={() => scrollToSection('experience')}
+                className="px-10 py-4 bg-transparent text-stone-100 font-light tracking-widest uppercase text-sm border border-amber-800 hover:bg-amber-900/20 hover:border-amber-700 transition-all duration-500 hover:tracking-wider"
+              >
+                Portfolio
+              </button>
+              <a
+                href="/Jomari_Laynesa_Resume.pdf"
+                download
+                className="px-10 py-4 bg-transparent text-amber-700 font-light tracking-widest uppercase text-sm border border-amber-800 hover:bg-amber-900/20 hover:border-amber-700 transition-all duration-500 hover:tracking-wider flex items-center group"
+              >
+                <Download size={16} className="mr-2 group-hover:translate-y-0.5 transition-transform duration-300" />
+                Resume
+              </a>
+            </div>
+          </div>
+          
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <ChevronDown size={24} className="text-amber-800" />
+          </div>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section 
+        id="about" 
+        className={`py-20 bg-stone-950 transition-all duration-1000 ${
+          visibleSections.has('about') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="w-16 h-px bg-gradient-to-r from-transparent via-amber-800 to-transparent mx-auto mb-6" />
+            <h2 
+              className="text-4xl font-light bg-gradient-to-r from-stone-100 via-amber-200 to-stone-100 bg-clip-text text-transparent tracking-widest uppercase"
+              style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: '0.3em' }}
+            >
+              About
+            </h2>
+            <div className="w-16 h-px bg-gradient-to-r from-transparent via-amber-800 to-transparent mx-auto mt-6" />
+          </div>
+          <div className="bg-stone-900/50 border border-stone-800 p-8 sm:p-12 hover:border-stone-700 transition-all duration-500">
+            <div className="grid md:grid-cols-2 gap-12">
+              <div>
+                <h3 className="text-xl font-light mb-6 text-stone-300 uppercase tracking-wider">Professional Summary</h3>
+                <p className="text-stone-400 leading-relaxed mb-6 font-light">
+                  Friendly and approachable, with knack for providing excellent customer service and ensuring guests feel welcome. Skilled in teamwork, actively supporting colleagues to achieve common goals and maintain positive work environment.
+                </p>
+                <p className="text-stone-400 leading-relaxed font-light">
+                  Quick learner, always eager to adapt to new tasks and challenges with can-do attitude. Demonstrates reliability and punctuality in all responsibilities.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-xl font-light mb-6 text-stone-300 uppercase tracking-wider">Personal Information</h3>
+                <div className="space-y-4">
+                  <div className="flex items-start text-stone-400 hover:text-stone-200 transition-colors duration-300 group">
+                    <MapPin size={18} className="mr-3 mt-1 text-stone-500 group-hover:text-stone-300" />
+                    <span className="font-light">Minalabac, Camarines Sur</span>
+                  </div>
+                  <div className="flex items-start text-stone-400 hover:text-stone-200 transition-colors duration-300 group">
+                    <Phone size={18} className="mr-3 mt-1 text-stone-500 group-hover:text-stone-300" />
+                    <span className="font-light">09511735576</span>
+                  </div>
+                  <div className="flex items-start text-stone-400 hover:text-stone-200 transition-colors duration-300 group">
+                    <Mail size={18} className="mr-3 mt-1 text-stone-500 group-hover:text-stone-300" />
+                    <span className="font-light">laynesajomari@gmail.com</span>
+                  </div>
+                  <div className="mt-8 pt-6 border-t border-stone-800">
+                    <p className="text-sm text-stone-500 font-light leading-relaxed">
+                      <span className="text-stone-400">Age:</span> 25 <span className="mx-2">•</span> 
+                      <span className="text-stone-400">Gender:</span> Male<br />
+                      <span className="text-stone-400">Status:</span> Single
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Experience Section */}
+      <section 
+        id="experience" 
+        className={`py-20 bg-black transition-all duration-1000 ${
+          visibleSections.has('experience') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="w-16 h-px bg-gradient-to-r from-transparent via-amber-800 to-transparent mx-auto mb-6" />
+            <h2 
+              className="text-4xl font-light bg-gradient-to-r from-stone-100 via-amber-200 to-stone-100 bg-clip-text text-transparent tracking-widest uppercase"
+              style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: '0.3em' }}
+            >
+              Experience
+            </h2>
+            <div className="w-16 h-px bg-gradient-to-r from-transparent via-amber-800 to-transparent mx-auto mt-6" />
+          </div>
+          <div className="space-y-6">
+            {experiences.map((exp, index) => (
+              <div
+                key={index}
+                className="bg-stone-900/30 border border-stone-800 p-6 sm:p-8 hover:border-stone-700 hover:bg-stone-900/50 transition-all duration-500 group"
+                style={{ 
+                  animationDelay: `${index * 0.2}s`,
+                  opacity: visibleSections.has('experience') ? 1 : 0,
+                  transform: visibleSections.has('experience') ? 'translateX(0)' : 'translateX(-50px)',
+                  transition: `all 0.6s ease ${index * 0.2}s`
+                }}
+              >
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 mr-6">
+                    <div className="w-12 h-12 border border-stone-700 flex items-center justify-center group-hover:border-stone-500 transition-all duration-300">
+                      <Briefcase size={20} className="text-stone-500 group-hover:text-stone-300" />
+                    </div>
+                  </div>
+                  <div className="flex-grow">
+                    <div className="flex flex-wrap justify-between items-start mb-3">
+                      <h3 className="text-xl font-light text-stone-100 group-hover:text-stone-300 transition-colors duration-300 tracking-wide">
+                        {exp.title}
+                      </h3>
+                      <span className="text-xs text-stone-500 font-light px-3 py-1 border border-stone-800 uppercase tracking-wider">
+                        {exp.period}
+                      </span>
+                    </div>
+                    <p className="text-stone-400 font-light mb-1 tracking-wide">{exp.company}</p>
+                    <p className="text-stone-600 text-sm mb-4 font-light">{exp.location}</p>
+                    <p className="text-stone-400 leading-relaxed font-light">{exp.description}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Education Section */}
+      <section 
+        id="education" 
+        className={`py-20 bg-stone-950 transition-all duration-1000 ${
+          visibleSections.has('education') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="w-16 h-px bg-gradient-to-r from-transparent via-amber-800 to-transparent mx-auto mb-6" />
+            <h2 
+              className="text-4xl font-light bg-gradient-to-r from-stone-100 via-amber-200 to-stone-100 bg-clip-text text-transparent tracking-widest uppercase"
+              style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: '0.3em' }}
+            >
+              Education
+            </h2>
+            <div className="w-16 h-px bg-gradient-to-r from-transparent via-amber-800 to-transparent mx-auto mt-6" />
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                year: "2025",
+                degree: "Bachelor of Science in Hospitality Management",
+                school: "Camarines Sur Polytechnic College",
+                location: "Nabua, Camarines Sur"
+              },
+              {
+                year: "2019",
+                degree: "General Academic Strand",
+                school: "Minalabac National High School",
+                location: "Minalabac, Camarines Sur"
+              },
+              {
+                year: "2013",
+                degree: "Elementary Education",
+                school: "Taban Elementary School",
+                location: "Taban Minalabac, Camarines Sur"
+              }
+            ].map((edu, index) => (
+              <div
+                key={index}
+                className="bg-stone-900/30 border border-stone-800 p-6 hover:border-stone-700 hover:bg-stone-900/50 transition-all duration-500 group"
+                style={{ 
+                  animationDelay: `${index * 0.2}s`,
+                  opacity: visibleSections.has('education') ? 1 : 0,
+                  transform: visibleSections.has('education') ? 'scale(1)' : 'scale(0.9)',
+                  transition: `all 0.6s ease ${index * 0.2}s`
+                }}
+              >
+                <div className="w-12 h-12 border border-stone-700 flex items-center justify-center mb-6 group-hover:border-stone-500 transition-all duration-300">
+                  <GraduationCap size={20} className="text-stone-500 group-hover:text-stone-300" />
+                </div>
+                <div className="text-stone-500 font-light text-sm mb-3 uppercase tracking-widest">{edu.year}</div>
+                <h3 className="text-base font-light text-stone-100 mb-3 group-hover:text-stone-300 transition-colors duration-300 leading-relaxed">
+                  {edu.degree}
+                </h3>
+                <p className="text-stone-400 font-light mb-1 text-sm">{edu.school}</p>
+                <p className="text-stone-600 text-xs font-light">{edu.location}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Skills & Training Section */}
+      <section 
+        id="skills" 
+        className={`py-20 bg-black transition-all duration-1000 ${
+          visibleSections.has('skills') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="w-16 h-px bg-gradient-to-r from-transparent via-amber-800 to-transparent mx-auto mb-6" />
+            <h2 
+              className="text-4xl font-light bg-gradient-to-r from-stone-100 via-amber-200 to-stone-100 bg-clip-text text-transparent tracking-widest uppercase"
+              style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: '0.3em' }}
+            >
+              Expertise
+            </h2>
+            <div className="w-16 h-px bg-gradient-to-r from-transparent via-amber-800 to-transparent mx-auto mt-6" />
+          </div>
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Skills */}
+            <div className="bg-stone-900/30 border border-stone-800 p-8 hover:border-stone-700 hover:bg-stone-900/50 transition-all duration-500">
+              <div className="flex items-center mb-8 pb-6 border-b border-stone-800">
+                <Coffee size={20} className="text-stone-500 mr-3" />
+                <h3 className="text-xl font-light text-stone-100 uppercase tracking-wider">Skills</h3>
+              </div>
+              <div className="space-y-4">
+                {skills.map((skill, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center p-4 border-l border-stone-800 hover:border-stone-600 hover:bg-stone-900/30 transition-all duration-300 group"
+                    style={{ 
+                      animationDelay: `${index * 0.1}s`,
+                      opacity: visibleSections.has('skills') ? 1 : 0,
+                      transition: `all 0.4s ease ${index * 0.1}s`
+                    }}
+                  >
+                    <div className="w-1 h-1 bg-stone-600 mr-4 group-hover:bg-stone-400 transition-colors duration-300" />
+                    <span className="text-stone-400 font-light group-hover:text-stone-200 transition-colors duration-300">{skill}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Training */}
+            <div className="bg-stone-900/30 border border-stone-800 p-8 hover:border-stone-700 hover:bg-stone-900/50 transition-all duration-500">
+              <div className="flex items-center mb-8 pb-6 border-b border-stone-800">
+                <Award size={20} className="text-stone-500 mr-3" />
+                <h3 className="text-xl font-light text-stone-100 uppercase tracking-wider">Training</h3>
+              </div>
+              <div className="space-y-4">
+                {training.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-start p-4 border-l border-stone-800 hover:border-stone-600 hover:bg-stone-900/30 transition-all duration-300 group"
+                    style={{ 
+                      animationDelay: `${index * 0.1}s`,
+                      opacity: visibleSections.has('skills') ? 1 : 0,
+                      transition: `all 0.4s ease ${index * 0.1}s`
+                    }}
+                  >
+                    <div className="w-1 h-1 bg-stone-600 mr-4 mt-2 flex-shrink-0 group-hover:bg-stone-400 transition-colors duration-300" />
+                    <span className="text-stone-400 text-sm font-light group-hover:text-stone-200 transition-colors duration-300">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section 
+        id="contact" 
+        className={`py-20 bg-stone-950 transition-all duration-1000 ${
+          visibleSections.has('contact') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}
+      >
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="w-16 h-px bg-gradient-to-r from-transparent via-amber-800 to-transparent mx-auto mb-6" />
+            <h2 
+              className="text-4xl font-light bg-gradient-to-r from-stone-100 via-amber-200 to-stone-100 bg-clip-text text-transparent tracking-widest uppercase"
+              style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: '0.3em' }}
+            >
+              Contact
+            </h2>
+            <div className="w-16 h-px bg-gradient-to-r from-transparent via-amber-800 to-transparent mx-auto mt-6" />
+            <p className="text-stone-500 mt-8 font-light">Let's connect and discuss opportunities</p>
+          </div>
+
+          {/* Contact Information */}
+          <div className="grid sm:grid-cols-3 gap-4 mb-12">
+            <a
+              href="tel:09511735576"
+              className="flex flex-col items-center p-6 border border-stone-800 hover:border-amber-800 hover:bg-stone-900/30 transition-all duration-300 group"
+            >
+              <Phone size={20} className="text-stone-500 mb-3 group-hover:text-amber-700 transition-colors duration-300" />
+              <h3 className="font-light text-stone-400 mb-2 text-sm uppercase tracking-wider">Phone</h3>
+              <p className="text-stone-300 text-center text-sm font-light">09511735576</p>
+            </a>
+
+            <a
+              href="mailto:laynesajomari@gmail.com"
+              className="flex flex-col items-center p-6 border border-stone-800 hover:border-amber-800 hover:bg-stone-900/30 transition-all duration-300 group"
+            >
+              <Mail size={20} className="text-stone-500 mb-3 group-hover:text-amber-700 transition-colors duration-300" />
+              <h3 className="font-light text-stone-400 mb-2 text-sm uppercase tracking-wider">Email</h3>
+              <p className="text-stone-300 text-center text-sm font-light break-all">laynesajomari@gmail.com</p>
+            </a>
+
+            <div className="flex flex-col items-center p-6 border border-stone-800 hover:border-amber-800 hover:bg-stone-900/30 transition-all duration-300 group">
+              <MapPin size={20} className="text-stone-500 mb-3 group-hover:text-amber-700 transition-colors duration-300" />
+              <h3 className="font-light text-stone-400 mb-2 text-sm uppercase tracking-wider">Location</h3>
+              <p className="text-stone-300 text-center text-sm font-light">Minalabac, Camarines Sur</p>
+            </div>
+          </div>
+
+          {/* Contact Form */}
+          <div className="bg-stone-900/30 border border-stone-800 p-8 sm:p-12 hover:border-stone-700 transition-all duration-500">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-light text-stone-400 mb-2 uppercase tracking-wider">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 bg-black border border-stone-800 text-stone-200 font-light focus:outline-none focus:border-amber-800 transition-all duration-300"
+                    placeholder="Your name"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-light text-stone-400 mb-2 uppercase tracking-wider">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 bg-black border border-stone-800 text-stone-200 font-light focus:outline-none focus:border-amber-800 transition-all duration-300"
+                    placeholder="your@email.com"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="subject" className="block text-sm font-light text-stone-400 mb-2 uppercase tracking-wider">
+                  Subject
+                </label>
+                <input
+                  type="text"
+                  id="subject"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 bg-black border border-stone-800 text-stone-200 font-light focus:outline-none focus:border-amber-800 transition-all duration-300"
+                  placeholder="What is this regarding?"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="message" className="block text-sm font-light text-stone-400 mb-2 uppercase tracking-wider">
+                  Message
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleInputChange}
+                  required
+                  rows={6}
+                  className="w-full px-4 py-3 bg-black border border-stone-800 text-stone-200 font-light focus:outline-none focus:border-amber-800 transition-all duration-300 resize-none"
+                  placeholder="Your message..."
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <button
+                  type="submit"
+                  className="px-10 py-4 bg-gradient-to-r from-amber-800 to-yellow-900 text-stone-100 font-light tracking-widest uppercase text-sm hover:from-amber-700 hover:to-yellow-800 transition-all duration-500 hover:tracking-wider flex items-center group"
+                >
+                  <span>Send Message</span>
+                  <Send size={16} className="ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+                </button>
+                {formStatus && (
+                  <span className="text-stone-400 text-sm font-light">{formStatus}</span>
+                )}
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-8 bg-black border-t border-stone-900">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-stone-600 font-light text-sm tracking-wide">
+            © 2025 Jomari M. Laynesa. All rights reserved.
+          </p>
+        </div>
+      </footer>
+
+      <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@200;300;400;500&display=swap');
+
+        * {
+          font-family: 'Inter', sans-serif;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 1s ease-out;
+        }
+
+        .animate-slideDown {
+          animation: slideDown 0.8s ease-out backwards;
+        }
+
+        .animate-slideUp {
+          animation: slideUp 0.8s ease-out backwards;
+        }
+
+        html {
+          scroll-behavior: smooth;
+        }
+
+        section {
+          scroll-margin-top: 80px;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+          color: #57534e;
+          opacity: 0.6;
+        }
+
+        input:focus,
+        textarea:focus {
+          background-color: #0a0a0a;
+        }
+      `}</style>
+    </div>
+  );
+}
